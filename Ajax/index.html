@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajaxexe</title>
+</head>
+
+<body onload="loadDoc()">
+    <div id="demo">
+        <h2>The XMLHttpRequest Object</h2>
+        <table>
+            <tr>
+                <th>empid</th>
+                <th>empname</th>
+                <th>empdob</th>
+            </tr>
+            <tbody id="myTable">
+            </tbody>
+        </table>
+        <fieldset>
+            <legend>search</legend>
+            input:<input type="text" id="valuebox" />
+            <button onclick="Loadid()">search</button>
+            <p id="show"></p>
+        </fieldset>
+        <fieldset>
+            <legend>Insert</legend>
+            id:<input type="text" id="idbox" /><br>
+            name:<input type="text" id="namebox" /><br>
+            dob:<input type="date" id="dobbox" /><br>
+            <button onclick="event.preventDefault();insert()">Insert</button>
+            <p id="show"></p>
+        </fieldset>
+
+    </div>
+    <script>
+        function buildTable(data) {
+            var table = document.getElementById("myTable")
+            for (var i in data) {
+                var row = `<tr>
+                    <td>${data[i].empid}</td>
+                    <td>${data[i].empname}</td>
+                    <td>${data[i].empdob}</td>
+              </tr>`
+                table.innerHTML += row;
+            }
+        }
+        function loadDoc() {
+            const xhttp = new XMLHttpRequest();
+            try {
+                xhttp.addEventListener('load', function () {
+                    let data = JSON.parse(xhttp.responseText);
+                    buildTable(data);
+                });
+                xhttp.open("GET", "http://localhost:56755/api/values", true);
+                xhttp.send();
+            }
+            catch (e) {
+                console.log(e.message);
+            }
+        }
+        function Loadid() {
+            var id = document.getElementById("valuebox").value;
+            const xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "http://localhost:56755/api/values/" + id, true);
+            xhttp.send();
+            xhttp.addEventListener('load', function () {
+                let [data] = JSON.parse(xhttp.responseText);
+                var table = document.getElementById("show")
+                var row = `<tr>
+                    <td>${data.empid}</td>
+                    <td>${data.empname}</td>
+                    <td>${data.empdob}</td>
+              </tr>`
+                table.innerHTML = row;
+            });
+        }
+        function insert() {
+            var id = document.getElementById("idbox").value;
+            var name = document.getElementById("namebox").value;
+            var dob = document.getElementById("dobbox").value;
+                xhttp.open("GET", "http://localhost:56755/api/values/" + id, true);
+                xhttp.send();
+                xhttp.addEventListener('load', function () {
+                    let [data] = JSON.parse(xhttp.responseText);
+                });
+                if(id==data.empid)
+                {
+                console.log("already there");
+                return;
+                }
+            
+           
+
+            var data = JSON.stringify({ "empid": id, "empname": name, "empdob": dob });
+            const xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "http://localhost:56755/api/values", true);
+            xhttp.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+            xhttp.send(data);
+            xhttp.onload = function () {
+                if (xhttp.status === 200) {
+                    console.log("Post successfully created!")
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
